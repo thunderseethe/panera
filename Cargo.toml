@@ -1,0 +1,8 @@
+[package]
+name = "panera"
+version = "0.1.0"
+authors = ["Ethan Smith <emsmith1995@gmail.com>"]
+
+[dependencies]
+nom = "~1.2.1"
+regex = "~0.1.55"

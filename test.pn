@@ -1,0 +1,5 @@
+f argument name here = (argument + name) - here
+
+test = f 0 2 3
+
+main = f 1 2 3

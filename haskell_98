@@ -1,0 +1,260 @@
+
+funlhs
+    ->	var apat {apat }
+    |	pati+1 varop(a,i) pati+1
+    |	lpati varop(l,i) pati+1
+    |	pati+1 varop(r,i) rpati
+    |	( funlhs ) apat apat*
+
+rhs
+    ->  = exp [where decls]
+    |   gdrhs [where decls]
+
+gdrhs
+    ->  gd = exp [gdrhs]
+
+gd
+    ->  | exp0
+
+exp
+    ->	exp0 :: [context =>] type	(expression type signature)
+    |	exp0
+
+exp0
+    ->	exp1 [qop(n,0) exp1]
+    |	lexp0
+    |	rexp0
+
+exp1
+    ->	exp2 [qop(n,1) exp2]
+    |	lexp1
+    |	rexp1
+
+exp2
+    ->	exp3 [qop(n,2) exp3]
+    |	lexp3
+    |	rexp3
+
+exp3
+    ->	exp4 [qop(n,3) exp4]
+    |	lexp4
+    |	rexp4
+
+exp4
+    ->  exp5 [qop(n,4) exp5]
+    |   lexp4
+    |   rexp4
+
+exp5
+    ->  exp6 [qop(n,5) exp6]
+    |   lexp5
+    |   rexp5
+
+exp6
+    ->  exp7 [qop(n,6) exp7]
+    |   lexp6
+    |   rexp6
+
+exp7
+    -> exp8 [qop(n,7) exp7]
+    | lexp7
+    | rexp7
+
+exp8
+    -> exp9 [qop(n,8) exp9]
+    | lexp9
+    | rexp9
+
+exp9
+    -> exp10 [qop(n,9) exp10]
+    | lexp9
+    | rexp9
+
+exp10
+    ->	\ apat1 ... apatn -> exp     (lambda abstraction, n>=1)
+    |	let decls in exp                 (let expression)
+    |	if exp then exp else exp	(conditional)
+    |	case exp of { alts }	(case expression)
+    |	do { stmts }	(do expression)
+    |	fexp
+
+lexpi
+    ->	(lexpi | expi+1) qop(l,i) expi+1
+
+lexp6
+    ->	- exp7
+
+rexpi
+    ->	expi+1 qop(r,i) (rexpi | expi+1)
+
+
+
+fexp
+    ->	[fexp] aexp	(function application)
+
+aexp
+    ->	qvar	(variable)
+    |	gcon	(general constructor)
+    |	literal
+    |	( exp )	(parenthesized expression)
+    |	( exp1 , ... , expk )	(tuple, k>=2)
+    |	[ exp1 , ... , expk ]	(list, k>=1)
+    |	[ exp1 [, exp2] .. [exp3] ]	(arithmetic sequence)
+    |	[ exp | qual1 , ... , qualn ]	(list comprehension, n>=1)
+    |	( expi+1 qop(a,i) )	(left section)
+    |	( lexpi qop(l,i) )	(left section)
+    |	( qop(a,i)<-> expi+1 )	(right section)
+    |	( qop(r,i)<-> rexpi )	(right section)
+    |	qcon { fbind1 , ... , fbindn }	(labeled construction, n>=0)
+    |	aexp<qcon> { fbind1 , ... , fbindn }	(labeled update, n >= 1)
+
+qual
+    ->	pat <- exp	(generator)
+    |	let decls	(local declaration)
+    |	exp	(guard)
+
+alts
+    ->	alt1 ; ... ; altn	(n>=1)
+
+alt
+    ->	pat -> exp [where decls]
+    |	pat gdpat [where decls]
+    |		(empty alternative)
+
+gdpat
+    ->	gd -> exp [ gdpat ]
+
+stmts
+    ->	stmt1 ... stmtn exp [;]	(n>=0)
+
+stmt
+    ->	exp ;
+    |	pat <- exp ;
+    |	let decls ;
+    |	;	(empty statement)
+
+fbind
+    ->	qvar = exp
+
+pat
+    ->	var + integer	(successor pattern)
+    |	pat0
+
+pati
+    ->	pati+1 [qconop(n,i) pati+1]
+    |	lpati
+    |	rpati
+
+lpati
+    ->	(lpati | pati+1) qconop(l,i) pati+1
+
+lpat6
+    ->	- (integer | float)	(negative literal)
+
+rpati
+    ->	pati+1 qconop(r,i) (rpati | pati+1)
+
+pat10
+    ->	apat
+    |	gcon apat1 ... apatk	(arity gcon = k, k>=1)
+
+apat
+    ->	var [@ apat]	(as pattern)
+    |	gcon	(arity gcon = 0)
+    |	qcon { fpat1 , ... , fpatk }	(labeled pattern, k>=0)
+    |	literal
+    |	_	(wildcard)
+    |	( pat )	(parenthesized pattern)
+    |	( pat1 , ... , patk )	(tuple pattern, k>=2)
+    |	[ pat1 , ... , patk ]	(list pattern, k>=1)
+    |	~ apat	(irrefutable pattern)
+
+fpat
+    ->	qvar = pat
+
+gcon
+    ->	()
+    |	[]
+    |	(,{,})
+    |	qcon
+
+var
+    ->	varid | ( varsym )	(variable)
+
+qvar
+    ->	qvarid | ( qvarsym )	(qualified variable)
+
+con
+    ->	conid | ( consym )	(constructor)
+
+qcon
+    ->	qconid | ( gconsym )	(qualified constructor)
+
+varop
+    ->	varsym | `varid`	(variable operator)
+
+qvarop
+    ->	qvarsym | `qvarid`	(qualified variable operator)
+
+conop
+    ->	consym | `conid`	(constructor operator)
+
+qconop
+    ->	gconsym | `qconid`	(qualified constructor operator)
+
+op
+    ->	varop | conop	(operator)
+
+qop
+    ->	qvarop | qconop	(qualified operator)
+
+gconsym
+    ->	: | qconsym
+
+
+whitespace	->	whitestuff {whitestuff}
+graphic	    ->	small | large | symbol | digit | special | : | " | '
+small	    ->	ascSmall | uniSmall | _
+ascSmall	->	a | b | ... | z
+uniSmall	->	any Unicode lowercase letter
+large	    ->	ascLarge | uniLarge
+ascLarge	->	A | B | ... | Z
+uniLarge	->	any uppercase or titlecase Unicode letter
+symbol	    ->	ascSymbol | uniSymbol<special | _ | : | " | '>
+special	    ->	( | ) | , | ; | [ | ] | `| { | }
+ascSymbol	->	! | # | $ | % | & | * | + | . | / | < | = | > | ? | @ |	\ | ^ | | | - | ~
+uniSymbol	->	any Unicode symbol or punctuation
+digit	    ->	ascDigit | uniDigit
+ascDigit	->	0 | 1 | ... | 9
+uniDigit	->	any Unicode decimal digit
+octit	    ->	0 | 1 | ... | 7
+hexit	    ->	digit | A | ... | F | a | ... | f
+varid	    ->	(small {small | large | digit | ' })<reservedid>
+conid	    ->	large {small | large | digit | ' }
+reservedid	->	case | class | data | default | deriving | do | else |	if | import | in | infix | infixl | infixr | instance |	let | module | newtype | of | then | type | where | _
+varsym	    ->	( symbol {symbol | :})<reservedop | dashes>
+consym	    ->	(: {symbol | :})<reservedop>
+reservedop	->	.. | : | :: | = | \ | | | <- | -> | @ | ~ | =>
+tyvar	    ->	varid	(type variables)
+tycon	    ->	conid	(type constructors)
+tycls	    ->	conid	(type classes)
+modid	    ->	conid	(modules)
+qvarid	    ->	[ modid . ] varid
+qconid	    ->	[ modid . ] conid
+qtycon	    ->	[ modid . ] tycon
+qtycls	    ->	[ modid . ] tycls
+qvarsym	    ->	[ modid . ] varsym
+qconsym	    ->	[ modid . ] consym
+decimal	    ->	digit{digit}
+octal	    ->	octit{octit}
+hexadecimal	->	hexit{hexit}
+integer	    ->	decimal |    0o octal | 0O octal |  0x hexadecimal | 0X hexadecimal
+float	    ->	decimal . decimal [exponent] |	decimal exponent
+exponent	->	(e | E) [+ | -] decimal
+char	    ->	' (graphic<' | \> | space | escape<\&>) '
+string	    ->	" {graphic<" | \> | space | escape | gap}"
+escape	    ->	\ ( charesc | ascii | decimal | o octal | x hexadecimal )
+charesc	    ->	a | b | f | n | r | t | v | \ | " | ' | &
+ascii	    ->	^cntrl | NUL | SOH | STX | ETX | EOT | ENQ | ACK |	BEL | BS | HT | LF | VT | FF | CR | SO | SI | DLE |	DC1 | DC2 | DC3 | DC4 | NAK | SYN | ETB | CAN |	EM | SUB | ESC | FS | GS | RS | US | SP | DEL
+cntrl	    ->	ascLarge | @ | [ | \ | ] | ^ | _
+gap	        ->	\ whitechar {whitechar}\
